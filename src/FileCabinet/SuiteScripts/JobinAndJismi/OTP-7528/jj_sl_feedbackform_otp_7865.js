@@ -219,7 +219,7 @@ define(['N/email', 'N/record', 'N/search', 'N/ui/serverWidget'],
                     id: customerId,
                     columns: ['salesrep']
                 });
-                return fieldLookUp.salesrep[0].value
+                return  fieldLookUp.salesrep[0].value
 
             }catch(err)
             {
