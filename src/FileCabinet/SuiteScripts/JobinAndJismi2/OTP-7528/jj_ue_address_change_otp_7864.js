@@ -81,10 +81,10 @@ define(['N/record'],
         */
 
         function addressChecker(scriptContext) {
-            var numOldLines = scriptContext.oldRecord.getLineCount({
+            let numOldLines = scriptContext.oldRecord.getLineCount({
                 sublistId: 'addressbook'
             });
-            var numNewLines = scriptContext.newRecord.getLineCount({
+            let numNewLines = scriptContext.newRecord.getLineCount({
                 sublistId: 'addressbook'
             });
             let numberOfLines = Math.max(numNewLines, numOldLines);
@@ -103,15 +103,18 @@ define(['N/record'],
                     });
                     let newAddress = newSubrecordInvDetail.getValue({
                         fieldId: "addrtext"
-                    })
+                    });
                     let oldAddress = oldSubrecordInvDetail.getValue({
                         fieldId: "addrtext"
-                    })
-                    if (newAddress != oldAddress) {
+                    });
+
+
+
+                    if (newAddress !== oldAddress) {
                         scriptContext.newRecord.setValue({
                             fieldId: "custentity_jj_address_changed",
                             value: true
-                        })
+                        });
                     }
 
 
@@ -119,7 +122,7 @@ define(['N/record'],
                     scriptContext.newRecord.setValue({
                         fieldId: "custentity_jj_address_changed",
                         value: true
-                    })
+                    });
                 }
             }
         }
