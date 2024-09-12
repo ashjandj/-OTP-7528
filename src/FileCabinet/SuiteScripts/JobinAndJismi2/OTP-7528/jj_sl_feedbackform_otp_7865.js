@@ -1,7 +1,7 @@
 /**
  * @NApiVersion 2.1
  * @NScriptType Suitelet 
- * 
+ * ***********************************************************************************************************************************
  * Client Name: Nil
  * 
  * Jira Code: OTP-7865
@@ -21,8 +21,8 @@
  * 
 
  * 
- * Revision History: Nil
- 
+ * Revision History: 1.0
+ *************************************************************************************************************************************8
 
 
 */
@@ -100,7 +100,7 @@ define(['N/email', 'N/record', 'N/search', 'N/ui/serverWidget'],
         */
         function createExternallyLinkedForm() 
         {
-            var form = serverWidget.createForm({
+            let form = serverWidget.createForm({
                 title: 'Customer Feedback Form'
             });
 
@@ -150,7 +150,7 @@ define(['N/email', 'N/record', 'N/search', 'N/ui/serverWidget'],
                 let customerEmail = scriptContextForm.custpage_jj_customer_email_otp7528;
                 let subject = scriptContextForm.custpage_jj_subject_otp7528;
                 let message = scriptContextForm.custpage_jj_message_otp7528;
-                var feedbackRecord = record.create({
+                let feedbackRecord = record.create({
                     type: "customrecord_jj_customer_feedback",
                     isDynamic: true,
                 });
@@ -292,7 +292,7 @@ define(['N/email', 'N/record', 'N/search', 'N/ui/serverWidget'],
 
         function findSalesRep(customerId) {
             try {
-                var fieldLookUp = search.lookupFields({
+                let fieldLookUp = search.lookupFields({
                     type: search.Type.CUSTOMER,
                     id: customerId,
                     columns: ['salesrep']
