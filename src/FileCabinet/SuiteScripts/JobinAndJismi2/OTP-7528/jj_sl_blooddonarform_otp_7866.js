@@ -47,9 +47,10 @@ define(['N/record', 'N/ui/serverWidget', 'N/format'],
                 }
             }
             else if (scriptContext.request.method === 'POST') {
-                let recordId = createBloodDonarRecord(scriptContext.request.parameters);
+                let recordId = createBloodDonarRecord(scriptContext.request.parameters,scriptContext.response);
+                if(recordId){
                 scriptContext.response.write(`<h3 style= "color:red">Record has been created with the id : ${recordId}
-                    </h3>`);
+                    </h3>`);}
             }
         }
         /**
@@ -159,22 +160,24 @@ define(['N/record', 'N/ui/serverWidget', 'N/format'],
         }
 
         /**
-            * Creates a new blood donor record based on the form data provided in the `scriptContextParameters`.
-            * The data is used to populate a custom record for blood donation requirements, with fields like first name, last name, gender, phone number, blood group, and last donation date.
+            * Creates a new blood donor record in NetSuite based on provided parameters.
+            * Validates the last donation date to ensure it is not a future date before saving the record.
+            *
+            * @param {Object} scriptContextParameters - The parameters from the script context request.
+            * @param {ServerResponse} response - The Suitelet response object used to provide feedback.
+            * @returns {number} - The internal ID of the newly created blood donor record.
+            * @throws {string} - Throws a "dateError" if the last donation date is a future date.
             * 
-            * @param {Object} scriptContextParameters - The parameters containing the form field values submitted by the user.
-            * @param {string} scriptContextParameters.custpage_jj_first_name_otp7866 - The first name of the donor.
-            * @param {string} scriptContextParameters.custpage_jj_last_name_otp7866 - The last name of the donor.
-            * @param {string} scriptContextParameters.custpage_jj_gender_otp7866 - The gender of the donor.
-            * @param {string} scriptContextParameters.custpage_jj_phone_otp7866 - The phone number of the donor.
-            * @param {string} scriptContextParameters.custpage_jj_blood_group_otp7866 - The blood group of the donor.
-            * @param {string} scriptContextParameters.custpage_jj_last_donation_otp7866 - The last donation date of the donor.
+            * @property {string} scriptContextParameters.custpage_jj_first_name_otp7866 - The first name of the donor.
+            * @property {string} scriptContextParameters.custpage_jj_last_name_otp7866 - The last name of the donor.
+            * @property {string} scriptContextParameters.custpage_jj_gender_otp7866 - The gender of the donor.
+            * @property {string} scriptContextParameters.custpage_jj_phone_otp7866 - The phone number of the donor.
+            * @property {string} scriptContextParameters.custpage_jj_last_donation_otp7866 - The last donation date of the donor.
+            * @property {string} scriptContextParameters.custpage_jj_blood_group_otp7866 - The blood group of the donor.
             * 
-            * @returns {number|null} The ID of the created blood donor record, or null if an error occurs.
-            *   
-            * @throws {Error} Logs an error if there is an issue creating or saving the donor record.
+            * @throws {Error} - Logs an error if there is an issue with the entered values or if the record creation fails.
         */
-        function createBloodDonarRecord(scriptContextParameters) {
+        function createBloodDonarRecord(scriptContextParameters,response) {
             try {
                 let firstName = scriptContextParameters.custpage_jj_first_name_otp7866;
                 let lastName = scriptContextParameters.custpage_jj_last_name_otp7866;
@@ -182,7 +185,13 @@ define(['N/record', 'N/ui/serverWidget', 'N/format'],
                 let phoneNumber = scriptContextParameters.custpage_jj_phone_otp7866;
                 let lastDonationDate = scriptContextParameters.custpage_jj_last_donation_otp7866;
                 let bloodGroup = scriptContextParameters.custpage_jj_blood_group_otp7866;
-
+                let loadDate = format.parse({ value: lastDonationDate, type: format.Type.DATE });
+                let todayDate = new Date();
+                if(loadDate > todayDate)
+                {
+                    response.write(`<h3 style= "color:red">The date cannot be a future date!!</h3>`);
+                    throw "dateError";
+                }
                 let bloodDonationForm = record.create({
                     type: "customrecord_jj_blood_requirment",
                     isDynamic: true,
@@ -210,7 +219,7 @@ define(['N/record', 'N/ui/serverWidget', 'N/format'],
                         fieldId: "custrecord_jj_blood_group_otp7866",
                         value: bloodGroup
                     });
-                    let loadDate = format.parse({ value: lastDonationDate, type: format.Type.DATE });
+                    
                     bloodDonationForm.setValue({
                         fieldId: "custrecord_jj_last_donation_otp7866",
                         value: loadDate
