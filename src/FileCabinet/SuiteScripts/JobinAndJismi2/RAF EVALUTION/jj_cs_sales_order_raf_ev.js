@@ -512,7 +512,7 @@ define(['N/email', 'N/record', 'N/search','N/format'],
                 author: senderId,
                 recipients: recipientId,
                 subject: 'Test Sample Email Module',
-                body: `https://td2932557.app.netsuite.com/app/accounting/transactions/salesord.nl?id=${recordId} `
+                body: `https://td2932557.app.netsuite.com/app/accounting/transactions/salesord.nl?id=${recordId}  `
                 // Record pdf = ${recPDF}
                 
             });
