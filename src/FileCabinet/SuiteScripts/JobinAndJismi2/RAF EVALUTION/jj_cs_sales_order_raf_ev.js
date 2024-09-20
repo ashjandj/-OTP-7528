@@ -2,6 +2,31 @@
  * @NApiVersion 2.x
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
+ *  * Client Name: Nil
+ * 
+ * Jira Code: RAF
+ * 
+ * Title: Custom page for display sales order based on the status
+ * 
+ * Author: Jobin And Jismi IT Services LLP
+ * 
+ * Date Created: Sep 20, 2024
+ *
+ * Script Description:
+ * Create an online form for sales order creation using NetSuite's SuiteScript. The form should include the following details at the body level
+ *
+ * In the item sublist, the following features are required:
+ * A facility for choosing items from the NetSuite account.
+ * Display item descriptions pulled from the item record.
+ * Each item must include mandatory Quantity and Price fields. The price needs to be sourced from the item's base price, and an Amount field should calculate the total (Amount = Price × Quantity).
+ * Users should not be allowed to commit items without entering both the quantity and price.
+ *
+ *Upon clicking the submit button, the system should check for duplicate customers in NetSuite using the entered email address. If the customer already exists, create a sales order for the existing customer. If the customer does not exist, create a new customer and generate a sales order for that customer.
+ * 
+ * 
+ * Revision History: 1.0
+ *************************************************************************************************************************************8
+
  */
 define(['N/email', 'N/record', 'N/search','N/format'],
     /**
@@ -51,6 +76,14 @@ define(['N/email', 'N/record', 'N/search','N/format'],
                 calculateAmount(scriptContext)
             }
         }
+
+        /** 
+        * @function salesOrderFilterForm
+        * @param {object} scriptContext
+        * 
+        * @throws {Error} Throws an error if there is an issue creating the form or populating its fields.
+        * This script will change the amount by multiplyinf rate with quantity
+        */
         function calculateAmount(scriptContext)
         {
             let quantity = scriptContext.currentRecord.getCurrentSublistValue({
@@ -67,6 +100,13 @@ define(['N/email', 'N/record', 'N/search','N/format'],
                 value: quantity * price
             })
         }
+        /** 
+        * @function salesOrderFilterForm
+        * @param {object} scriptContext
+        * 
+        * @throws {Error} Throws an error if there is an issue creating the form or populating its fields.
+        * This script will Populate sublist with other values
+        */
         function updateSublist(scriptContext)
         {
             let itemid = scriptContext.currentRecord.getCurrentSublistValue({
@@ -98,6 +138,13 @@ define(['N/email', 'N/record', 'N/search','N/format'],
             })
         }
 
+        /** 
+        * @function salesOrderFilterForm
+        * @param {object} scriptContext
+        * @param {string} emailOfCustomer
+        * @throws {Error} Throws an error if there is an issue creating the form or populating its fields.
+        * This script will Populate sublist with other values
+        */
 
         function toCheckDuplicates(emailOfCustomer, scriptContext) {
 
@@ -278,6 +325,16 @@ define(['N/email', 'N/record', 'N/search','N/format'],
 
             return true;
         }
+
+        /** 
+        * @function salesOrderFilterForm
+        * @param {object} scriptContext
+        * @param {Record} scriptContext.currentRecord - Current form record
+        * @returns {integer} recordId
+        * @throws {Error} Throws an error if there is an issue creating the form or populating its fields.
+        * This script will create a customer
+        */
+
         function createCustomer(currentRecord) {
             try {
                 let objRecord = record.create({
@@ -324,6 +381,17 @@ define(['N/email', 'N/record', 'N/search','N/format'],
 
 
         }
+
+        /** 
+        * @function salesOrderFilterForm
+        * @param {object} scriptContext
+        * @param {Record} scriptContext.currentRecord - Current form record
+        * @returns {integer} recordId
+        * @throws {Error} Throws an error if there is an issue creating the form or populating its fields.
+        * This script will create a customer
+        */
+
+        
         function creatSalesOrder(entityid, currentRecord) {
             alert(entityid);
             let objRecord = record.create({
@@ -400,7 +468,7 @@ define(['N/email', 'N/record', 'N/search','N/format'],
     
                 console.log(fieldLookUp)
                 console.log(fieldLookUp.salesrep[0].value)
-                if (fieldLookUp.total > 5) {
+                if (fieldLookUp.total > 500) {
                     var fieldLookUp2 = search.lookupFields({
                         type: search.Type.EMPLOYEE,
                         id: fieldLookUp.salesrep[0].value,
@@ -417,7 +485,7 @@ define(['N/email', 'N/record', 'N/search','N/format'],
 
         }
 
-        
+
         function sendMail(recipientId,recordId) {
             let senderId = -5;
             let timeStamp = new Date().getUTCMilliseconds();

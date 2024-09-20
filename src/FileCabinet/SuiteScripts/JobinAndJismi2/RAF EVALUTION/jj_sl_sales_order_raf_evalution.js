@@ -1,6 +1,32 @@
 /**
  * @NApiVersion 2.1
  * @NScriptType Suitelet
+ *  *  ************************************************************************************************************************************
+ * Client Name: Nil
+ * 
+ * Jira Code: RAF
+ * 
+ * Title: Custom page for display sales order based on the status
+ * 
+ * Author: Jobin And Jismi IT Services LLP
+ * 
+ * Date Created: Sep 20, 2024
+ *
+ * Script Description:
+ * Create an online form for sales order creation using NetSuite's SuiteScript. The form should include the following details at the body level
+ *
+ * In the item sublist, the following features are required:
+ * A facility for choosing items from the NetSuite account.
+ * Display item descriptions pulled from the item record.
+ * Each item must include mandatory Quantity and Price fields. The price needs to be sourced from the item's base price, and an Amount field should calculate the total (Amount = Price × Quantity).
+ * Users should not be allowed to commit items without entering both the quantity and price.
+ *
+ *Upon clicking the submit button, the system should check for duplicate customers in NetSuite using the entered email address. If the customer already exists, create a sales order for the existing customer. If the customer does not exist, create a new customer and generate a sales order for that customer.
+ * 
+ * 
+ * Revision History: 1.0
+ *************************************************************************************************************************************8
+
  */
 define(['N/record', 'N/search', 'N/ui/serverWidget'],
     /**
@@ -30,7 +56,13 @@ define(['N/record', 'N/search', 'N/ui/serverWidget'],
 
             }
         }
-
+        /** 
+        * @function salesOrderFilterForm
+        * @returns {serverWidget} The created form object containing select fields for subsidiaries, departments, customers, and status,
+        *                   along with a sublist displaying relevant sales order details.
+        * @throws {Error} Throws an error if there is an issue creating the form or populating its fields.
+        *
+        */
         function createSalesOrederForm() {
             try {
                 let salesOrderForm = serverWidget.createForm({
