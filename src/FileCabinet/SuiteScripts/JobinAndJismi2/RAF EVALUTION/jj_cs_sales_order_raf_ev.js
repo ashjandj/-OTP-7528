@@ -78,7 +78,7 @@ define(['N/email', 'N/record', 'N/search','N/format'],
         }
 
         /** 
-        * @function salesOrderFilterForm
+        * @function calculateAmount
         * @param {object} scriptContext
         * 
         * @throws {Error} Throws an error if there is an issue creating the form or populating its fields.
@@ -86,22 +86,27 @@ define(['N/email', 'N/record', 'N/search','N/format'],
         */
         function calculateAmount(scriptContext)
         {
-            let quantity = scriptContext.currentRecord.getCurrentSublistValue({
-                sublistId: "custpage_jj_so_sublist_raf",
-                fieldId: "custpage_jj_quantity",
-            })
-            let price = scriptContext.currentRecord.getCurrentSublistValue({
-                sublistId: "custpage_jj_so_sublist_raf",
-                fieldId: "custpage_jj_price",
-            })
-            scriptContext.currentRecord.setCurrentSublistValue({
-                sublistId: "custpage_jj_so_sublist_raf",
-                fieldId: "custpage_jj_amount",
-                value: quantity * price
-            })
+            try{
+                let quantity = scriptContext.currentRecord.getCurrentSublistValue({
+                    sublistId: "custpage_jj_so_sublist_raf",
+                    fieldId: "custpage_jj_quantity",
+                })
+                let price = scriptContext.currentRecord.getCurrentSublistValue({
+                    sublistId: "custpage_jj_so_sublist_raf",
+                    fieldId: "custpage_jj_price",
+                })
+                scriptContext.currentRecord.setCurrentSublistValue({
+                    sublistId: "custpage_jj_so_sublist_raf",
+                    fieldId: "custpage_jj_amount",
+                    value: quantity * price
+                })
+            }catch(err)
+            {
+                log.error(err);
+            }
         }
         /** 
-        * @function salesOrderFilterForm
+        * @function updateSublist
         * @param {object} scriptContext
         * 
         * @throws {Error} Throws an error if there is an issue creating the form or populating its fields.
@@ -109,37 +114,42 @@ define(['N/email', 'N/record', 'N/search','N/format'],
         */
         function updateSublist(scriptContext)
         {
-            let itemid = scriptContext.currentRecord.getCurrentSublistValue({
-                sublistId: "custpage_jj_so_sublist_raf",
-                fieldId: "custpage_jj_item_name",
-            })
-            let fieldLookUp = search.lookupFields({
-                type: search.Type.ITEM,
-                id: itemid,
-                columns: ['salesdescription', 'price', 'subsidiary']
-            });
-            let subsidiaryOfcustomer = scriptContext.currentRecord.getValue({
-                fieldId: "custpage_jj_subsidiary",
-            });
-            console.log(fieldLookUp.subsidiary)
-            if (subsidiaryOfcustomer != fieldLookUp.subsidiary[0].value) {
-                alert("item Not in the subsidiary");
-                return false
+            try{
+                let itemid = scriptContext.currentRecord.getCurrentSublistValue({
+                    sublistId: "custpage_jj_so_sublist_raf",
+                    fieldId: "custpage_jj_item_name",
+                })
+                let fieldLookUp = search.lookupFields({
+                    type: search.Type.ITEM,
+                    id: itemid,
+                    columns: ['salesdescription', 'price', 'subsidiary']
+                });
+                let subsidiaryOfcustomer = scriptContext.currentRecord.getValue({
+                    fieldId: "custpage_jj_subsidiary",
+                });
+                console.log(fieldLookUp.subsidiary)
+                if (subsidiaryOfcustomer != fieldLookUp.subsidiary[0].value) {
+                    alert("item Not in the subsidiary");
+                    return false
+                }
+                scriptContext.currentRecord.setCurrentSublistValue({
+                    sublistId: "custpage_jj_so_sublist_raf",
+                    fieldId: "custpage_jj_item_desc",
+                    value: fieldLookUp.salesdescription
+                })
+                scriptContext.currentRecord.setCurrentSublistValue({
+                    sublistId: "custpage_jj_so_sublist_raf",
+                    fieldId: "custpage_jj_price",
+                    value: fieldLookUp.price
+                })
+            }catch(err)
+            {
+                log.error(err);
             }
-            scriptContext.currentRecord.setCurrentSublistValue({
-                sublistId: "custpage_jj_so_sublist_raf",
-                fieldId: "custpage_jj_item_desc",
-                value: fieldLookUp.salesdescription
-            })
-            scriptContext.currentRecord.setCurrentSublistValue({
-                sublistId: "custpage_jj_so_sublist_raf",
-                fieldId: "custpage_jj_price",
-                value: fieldLookUp.price
-            })
         }
 
         /** 
-        * @function salesOrderFilterForm
+        * @function toCheckDuplicates
         * @param {object} scriptContext
         * @param {string} emailOfCustomer
         * @throws {Error} Throws an error if there is an issue creating the form or populating its fields.
@@ -327,10 +337,10 @@ define(['N/email', 'N/record', 'N/search','N/format'],
         }
 
         /** 
-        * @function salesOrderFilterForm
+        * @function  createCustomer
         * @param {object} scriptContext
         * @param {Record} scriptContext.currentRecord - Current form record
-        * @returns {integer} recordId
+        * @returns {integer} recordId of customer
         * @throws {Error} Throws an error if there is an issue creating the form or populating its fields.
         * This script will create a customer
         */
@@ -383,115 +393,122 @@ define(['N/email', 'N/record', 'N/search','N/format'],
         }
 
         /** 
-        * @function salesOrderFilterForm
+        * @function creatSalesOrder
         * @param {object} scriptContext
         * @param {Record} scriptContext.currentRecord - Current form record
-        * @returns {integer} recordId
+        * @returns {integer} recordId of sales order
         * @throws {Error} Throws an error if there is an issue creating the form or populating its fields.
-        * This script will create a customer
+        * This script will create a sales Order
         */
 
-        
+
         function creatSalesOrder(entityid, currentRecord) {
-            alert(entityid);
-            let objRecord = record.create({
-               
-                type: record.Type.SALES_ORDER,
-                isDynamic: true,
-                defaultValues: {
-                    entity: entityid
-                }
-            });
-            objRecord.setValue(
-              {  fieldId : "orderstatus",
-                value: "B"
-              }
-
-            )
-            let formRecord = currentRecord;
-
-            var lineCount = formRecord.getLineCount('custpage_jj_so_sublist_raf');
-            for (let i = 0; i < lineCount; i++) {
-                objRecord.selectLine({
-                    sublistId: 'item',
-                    line: i
-                });
-                let itemid = currentRecord.getSublistValue({
-                    sublistId: "custpage_jj_so_sublist_raf",
-                    fieldId: "custpage_jj_item_name",
-                    line: i
-                })
-                itemid= format.parse({
-                    value: itemid,
-                    type: format.Type.SELECT
-                });
-                alert(itemid)
-                // let itemid = 722
-                let obj= objRecord.setCurrentSublistValue({
-                    sublistId: "item",
-                    fieldId: 'item',
-                    value: itemid
-
-                });
-                alert(obj)
-                let quantity = currentRecord.getSublistValue({
-                    sublistId: "custpage_jj_so_sublist_raf",
-                    fieldId: "custpage_jj_quantity",
-                    line: i
-                });
-                quantity= format.parse({
-                    value: quantity,
-                    type: format.Type.FLOAT
-                });
-                objRecord.setCurrentSublistValue({
-                    sublistId: "item",
-                    fieldId: 'quantity',
-                    value: quantity
-                });
-                alert(quantity)
-                objRecord.commitLine({
-                    sublistId: 'item'
-                });
-                alert("commited")
-
-            }
-            let recordId = objRecord.save(          
-            );
-
-            alert(recordId)
             try{
-                let fieldLookUp = search.lookupFields({
-                    type: search.Type.SALES_ORDER,
-                    id: recordId,
-                    columns: ['total', 'salesrep']
+                let objRecord = record.create({
+               
+                    type: record.Type.SALES_ORDER,
+                    isDynamic: true,
+                    defaultValues: {
+                        entity: entityid
+                    }
                 });
+                objRecord.setValue(
+                  {  fieldId : "orderstatus",
+                    value: "B"
+                  }
     
-                console.log(fieldLookUp)
-                console.log(fieldLookUp.salesrep[0].value)
-                if (fieldLookUp.total > 500) {
-                    var fieldLookUp2 = search.lookupFields({
-                        type: search.Type.EMPLOYEE,
-                        id: fieldLookUp.salesrep[0].value,
-                        columns: ['supervisor']
+                )
+                let formRecord = currentRecord;
+    
+                let lineCount = formRecord.getLineCount('custpage_jj_so_sublist_raf');
+                for (let i = 0; i < lineCount; i++) {
+                    objRecord.selectLine({
+                        sublistId: 'item',
+                        line: i
                     });
-                    console.log("supervisor " + fieldLookUp2.supervisor[0].text)
-                    sendMail(fieldLookUp2.supervisor[0].value,recordId)
+                    let itemid = currentRecord.getSublistValue({
+                        sublistId: "custpage_jj_so_sublist_raf",
+                        fieldId: "custpage_jj_item_name",
+                        line: i
+                    })
+                    itemid= format.parse({
+                        value: itemid,
+                        type: format.Type.SELECT
+                    });
+                    let obj= objRecord.setCurrentSublistValue({
+                        sublistId: "item",
+                        fieldId: 'item',
+                        value: itemid
+    
+                    });
+                    let quantity = currentRecord.getSublistValue({
+                        sublistId: "custpage_jj_so_sublist_raf",
+                        fieldId: "custpage_jj_quantity",
+                        line: i
+                    });
+                    quantity= format.parse({
+                        value: quantity,
+                        type: format.Type.FLOAT
+                    });
+                    objRecord.setCurrentSublistValue({
+                        sublistId: "item",
+                        fieldId: 'quantity',
+                        value: quantity
+                    });
+                    objRecord.commitLine({
+                        sublistId: 'item'
+                    });
+    
                 }
-                alert(`Record Created With ID ${recordId}`)
+                let recordId = objRecord.save(          
+                );
+    
+                try{
+                    let fieldLookUp = search.lookupFields({
+                        type: search.Type.SALES_ORDER,
+                        id: recordId,
+                        columns: ['total', 'salesrep']
+                    });
+        
+                    console.log(fieldLookUp)
+                    console.log(fieldLookUp.salesrep[0].value)
+                    if (fieldLookUp.total > 500) {
+                        let fieldLookUp2 = search.lookupFields({
+                            type: search.Type.EMPLOYEE,
+                            id: fieldLookUp.salesrep[0].value,
+                            columns: ['supervisor']
+                        });
+                        console.log("supervisor " + fieldLookUp2.supervisor[0].text)
+                        sendMail(fieldLookUp2.supervisor[0].value,recordId)
+                    }
+                    alert(`Record Created With ID ${recordId}`)
+                }catch(err)
+                {
+                    log.error("Mail Error");
+                }
             }catch(err)
             {
-                log.error("Mail Error");
+                log.error(err)
             }
 
         }
 
+        /** 
+        * @function sendMail
+        * @param {integer} recordId of sales order
+        * @param {integer} recipientId of supervisor
+        * @returns {integer} recordId of sales order
+        * @throws {Error} Throws an error if there is an issue creating the form or populating its fields.
+        * This script will create a sales Order
+        */
 
         function sendMail(recipientId,recordId) {
-            let senderId = -5;
+            try{
+                let senderId = -5;
             let timeStamp = new Date().getUTCMilliseconds();
             recipientId = 12;
             //While adding the render module, the code is showing abnormalities
-            // var recPDF = render.transaction({
+            // let recPDF = render.transaction({
             //     entityId: recordId,
             //     printMode: render.PrintMode.PDF,
             
@@ -504,6 +521,8 @@ define(['N/email', 'N/record', 'N/search','N/format'],
                 // Record pdf = ${recPDF}
                 
             });
+            }catch(err)
+            {log.error(err)}
         }
 
 
