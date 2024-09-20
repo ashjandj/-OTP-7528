@@ -3,13 +3,13 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['N/email', 'N/record', 'N/search'],
+define(['N/email', 'N/record', 'N/search','N/format'],
     /**
      * @param{email} email
      * @param{record} record
      * @param{search} search
      */
-    function (email, record, search) {
+    function (email, record, search, format) {
 
         /**
          * Function to be executed after page is initialized.
@@ -325,7 +325,9 @@ define(['N/email', 'N/record', 'N/search'],
 
         }
         function creatSalesOrder(entityid, currentRecord) {
+            alert(entityid);
             let objRecord = record.create({
+               
                 type: record.Type.SALES_ORDER,
                 isDynamic: true,
                 defaultValues: {
@@ -346,57 +348,76 @@ define(['N/email', 'N/record', 'N/search'],
                     sublistId: 'item',
                     line: i
                 });
-                let itemid = currentRecord.getCurrentSublistValue({
+                let itemid = currentRecord.getSublistValue({
                     sublistId: "custpage_jj_so_sublist_raf",
                     fieldId: "custpage_jj_item_name",
                     line: i
                 })
-                itemid = parseInt(itemid)
-                objRecord.setCurrentSublistValue({
+                itemid= format.parse({
+                    value: itemid,
+                    type: format.Type.SELECT
+                });
+                alert(itemid)
+                // let itemid = 722
+                let obj= objRecord.setCurrentSublistValue({
                     sublistId: "item",
                     fieldId: 'item',
                     value: itemid
 
                 });
-                let quantity = currentRecord.getCurrentSublistValue({
+                alert(obj)
+                let quantity = currentRecord.getSublistValue({
                     sublistId: "custpage_jj_so_sublist_raf",
                     fieldId: "custpage_jj_quantity",
                     line: i
                 });
-                quantity = parseFloat(quantity)
+                quantity= format.parse({
+                    value: quantity,
+                    type: format.Type.FLOAT
+                });
                 objRecord.setCurrentSublistValue({
                     sublistId: "item",
                     fieldId: 'quantity',
                     value: quantity
                 });
+                alert(quantity)
                 objRecord.commitLine({
                     sublistId: 'item'
                 });
-            }
-            let recordId = objRecord.save({
-                enableSourcing: false,
-                ignoreMandatoryFields: false
-            });
-            var fieldLookUp = search.lookupFields({
-                type: search.Type.SALES_ORDER,
-                id: recordId,
-                columns: ['total', 'salesrep']
-            });
+                alert("commited")
 
-            console.log(fieldLookUp)
-            console.log(fieldLookUp.salesrep[0].value)
-            if (fieldLookUp.total > 5) {
-                var fieldLookUp2 = search.lookupFields({
-                    type: search.Type.EMPLOYEE,
-                    id: fieldLookUp.salesrep[0].value,
-                    columns: ['supervisor']
-                });
-                console.log("supervisor " + fieldLookUp2.supervisor[0].text)
-                sendMail(fieldLookUp2.supervisor[0].value,recordId)
             }
-            alert(`Record Created With ID ${recordId}`)
+            let recordId = objRecord.save(          
+            );
+
+            alert(recordId)
+            try{
+                let fieldLookUp = search.lookupFields({
+                    type: search.Type.SALES_ORDER,
+                    id: recordId,
+                    columns: ['total', 'salesrep']
+                });
+    
+                console.log(fieldLookUp)
+                console.log(fieldLookUp.salesrep[0].value)
+                if (fieldLookUp.total > 5) {
+                    var fieldLookUp2 = search.lookupFields({
+                        type: search.Type.EMPLOYEE,
+                        id: fieldLookUp.salesrep[0].value,
+                        columns: ['supervisor']
+                    });
+                    console.log("supervisor " + fieldLookUp2.supervisor[0].text)
+                    sendMail(fieldLookUp2.supervisor[0].value,recordId)
+                }
+                alert(`Record Created With ID ${recordId}`)
+            }catch(err)
+            {
+                log.error("Mail Error");
+            }
 
         }
+
+        
         function sendMail(recipientId,recordId) {
             let senderId = -5;
             let timeStamp = new Date().getUTCMilliseconds();
