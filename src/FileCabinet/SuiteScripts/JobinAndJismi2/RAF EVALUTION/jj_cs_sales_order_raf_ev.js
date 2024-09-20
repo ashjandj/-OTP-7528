@@ -127,7 +127,6 @@ define(['N/email', 'N/record', 'N/search','N/format'],
                 let subsidiaryOfcustomer = scriptContext.currentRecord.getValue({
                     fieldId: "custpage_jj_subsidiary",
                 });
-                console.log(fieldLookUp.subsidiary)
                 if (subsidiaryOfcustomer != fieldLookUp.subsidiary[0].value) {
                     alert("item Not in the subsidiary");
                     return false
@@ -363,7 +362,6 @@ define(['N/email', 'N/record', 'N/search','N/format'],
                 let subsidiary = currentRecord.getValue({
                     fieldId: " custpage_jj_subsidiary"
                 });
-                console.log(name + phone + email1 + subsidiary)
                 objRecord.setValue({
                     fieldId: "companyname",
                     value: Name
@@ -386,7 +384,7 @@ define(['N/email', 'N/record', 'N/search','N/format'],
                 });
                 return recordId;
             } catch (err) {
-                console.log(err)
+                log.error(err)
             }
 
 
@@ -470,15 +468,12 @@ define(['N/email', 'N/record', 'N/search','N/format'],
                         columns: ['total', 'salesrep']
                     });
         
-                    console.log(fieldLookUp)
-                    console.log(fieldLookUp.salesrep[0].value)
                     if (fieldLookUp.total > 500) {
                         let fieldLookUp2 = search.lookupFields({
                             type: search.Type.EMPLOYEE,
                             id: fieldLookUp.salesrep[0].value,
                             columns: ['supervisor']
                         });
-                        console.log("supervisor " + fieldLookUp2.supervisor[0].text)
                         sendMail(fieldLookUp2.supervisor[0].value,recordId)
                     }
                     alert(`Record Created With ID ${recordId}`)
