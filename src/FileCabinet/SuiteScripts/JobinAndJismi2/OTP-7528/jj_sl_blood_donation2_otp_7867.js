@@ -110,7 +110,7 @@ define(['N/ui/serverWidget'],
                     text: "O-",
                     value: 8
                 });
-                var bloodDonarsublist = form.addSublist({
+                let bloodDonarsublist = form.addSublist({
                     id: 'custpage_jj_blood_sublist',
                     type: serverWidget.SublistType.INLINEEDITOR,
                     label: 'Blood Donar Details'
