@@ -1,7 +1,7 @@
 /**
  * @NApiVersion 2.1
  * @NScriptType User Event Script 
- *****************************************************************************************************************
+ * 
  * Client Name: Nil
  * 
  * Jira Code: OTP-7864
@@ -16,8 +16,7 @@
  * Script Description: This script checks for changes or additions in the addressbook sublist 
  * of the Customer Record and sets a custom checkbox field to true if any modifications are detected.
  * 
- * Revision History: 1.0
- * *****************************************************************************************************************
+ * Revision History: Nil
 */
 define(['N/record'],
     /**

@@ -1,3 +1,4 @@
+<customrecordtype scriptid="customrecord_jj_customer_feedback">
   <accesstype>NONENEEDED</accesstype>
   <allowattachments>T</allowattachments>
   <allowinlinedeleting>F</allowinlinedeleting>
