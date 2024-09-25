@@ -1,0 +1,10 @@
+<clientscript scriptid="customscript_jj_cs_sales_order_otp_7921">
+  <description></description>
+  <isinactive>F</isinactive>
+  <name>JJ CS SALES ORDER OTP 7921</name>
+  <notifyadmins>F</notifyadmins>
+  <notifyemails></notifyemails>
+  <notifyowner>T</notifyowner>
+  <notifyuser>F</notifyuser>
+  <scriptfile>[/SuiteScripts/JobinAndJismi2/OTP-7528/jj_cs_sales_order_otp_7921.js]</scriptfile>
+</clientscript>
