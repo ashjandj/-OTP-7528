@@ -302,7 +302,7 @@ define(['N/record', 'N/search', 'N/format'],
 
                 let formRecord = scriptContext.currentRecord;
 
-                let departmentOfSO = "", classOfSO = "", taxtotalOfSO = "";
+                let departmentOfSO = "", classOfSO = "";
                 salesOrderSearch.run().each(function (result) {
                     let internalid = result.getValue({
                         name: 'internalid'
@@ -331,6 +331,10 @@ define(['N/record', 'N/search', 'N/format'],
                         taxtotalOfSO = result.getValue({
                             name: 'taxtotal'
                         });
+                        if(!taxtotalOfSO)
+                        {
+                            taxtotalOfSO = 0.0;
+                        }
                     } catch (err) {
                         taxtotalOfSO = "0.0"
                     }
