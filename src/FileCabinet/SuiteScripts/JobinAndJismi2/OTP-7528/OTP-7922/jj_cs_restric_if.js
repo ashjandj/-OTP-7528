@@ -4,7 +4,7 @@
  * @NModuleScope SameAccount
  *  * Client Name: Nil
  * 
- * Jira Code: OTP-7866
+ * Jira Code: OTP-7922
  * 
  * Title: Restrict IF save
  * 
@@ -47,11 +47,7 @@ define(['N/record', 'N/search', 'N/ui/message'],
                 });
                 let totalCustomerDeposit = getCustomerDepositForSalesOrder(salesOrderId);
                 let totalamount = getCustomerTotalAmount(salesOrderId);
-                if(!totalCustomerDeposit)
-                {
-                    return true;
-                }
-                if (totalCustomerDeposit > totalamount || totalCustomerDeposit == 0.0) {
+                if (totalCustomerDeposit >= totalamount) {
                     return true;
                 } else {
                     let myMsg = message.create({
